@@ -14,27 +14,23 @@ Use the SQLAlchemy automap_base() function to reflect your tables into classes, 
 
 Link Python to the database by creating a SQLAlchemy session.
 
-IMPORTANT
-#Remember to close your session at the end of your notebook.
+    IMPORTANT
+    Remember to close your session at the end of your notebook.
 
 Perform a precipitation analysis and then a station analysis by completing the steps in the following two subsections.
 
-Precipitation Analysis
-Find the most recent date in the dataset.
+### Precipitation Analysis
+- Find the most recent date in the dataset.
+- Using that date, get the previous 12 months of precipitation data by querying the previous 12 months of data.
+- Load the query results into a Pandas DataFrame. Explicitly set the column names.
+- Sort the DataFrame values by "date".
+- Plot the results by using the DataFrame plot method, as the following image shows:
+- A screenshot depicts the plot.
+- Use Pandas to print the summary statistics for the precipitation data.
 
-Using that date, get the previous 12 months of precipitation data by querying the previous 12 months of data.
-
-Load the query results into a Pandas DataFrame. Explicitly set the column names.
-Sort the DataFrame values by "date".
-Plot the results by using the DataFrame plot method, as the following image shows:
-A screenshot depicts the plot.
-Use Pandas to print the summary statistics for the precipitation data.
-
-Station Analysis
-Design a query to calculate the total number of stations in the dataset.
-Design a query to find the most-active stations (that is, the stations that have the most rows). To do so, complete the following steps:
-
-List the stations and observation counts in descending order.
+### Station Analysis
+- Design a query to calculate the total number of stations in the dataset.
+- Design a query to find the most-active stations (that is, the stations that have the most rows).
 
 ## Part 2: Design Your Climate App
 Now that you’ve completed your initial analysis, you’ll design a Flask API based on the queries that you just developed. To do so, use Flask to create your routes as follows:
