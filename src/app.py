@@ -99,7 +99,31 @@ def stations():
 
 @app.route("/api/v1.0/tobs")
 def tobs():
-    return "tobs"
+      # Create our session (link) from Python to the DB
+    session = Session(engine)
+    
+    # Design a query to find the most active stations (i.e. which stations have the most rows?)
+    # List the stations and their counts in descending order.
+    station_measurements = (session.query(Measurements.station, func.count(Measurements.id))
+                            .group_by(Measurements.station)
+                            .order_by(func.count(Measurements.id).desc()).all())
+    
+    busiest_station = station_measurements[0].station
+    station_temp = (session.query(
+                    Measurements.station,
+                    func.min(Measurements.tobs),
+                    func.max(Measurements.tobs), 
+                    func.sum(Measurements.tobs) / func.count(Measurements.tobs),
+                    func.count(Measurements.tobs)
+                    )
+                    .group_by(Measurements.station)
+                    .filter(Measurements.station == busiest_station).all())
+    
+    station_temp_dict = [{'station': x.station, 'minimum': x[1], 'maximum': x[2], 'average': x[2], 'count': x[3]} for x in station_temp]
+
+    session.close()
+
+    return jsonify(station_temp_dict)
 
 @app.route("/api/v1.0/<start>")
 @app.route("/api/v1.0/<start>/<end>")
