@@ -6,11 +6,6 @@ from sqlalchemy import create_engine, func
 
 from flask import Flask, jsonify
 
-
-
-
-
-
 #################################################
 # Database Setup
 #################################################
@@ -27,37 +22,54 @@ Measurements = Base.classes.measurement
 Stations = Base.classes.station
 
 # Create our session (link) from Python to the DB
-session = Session(bind=engine)
 
 #################################################
 # Flask Setup
 #################################################
 app = Flask(__name__)
 
-
 #################################################
 # Flask Routes
 #################################################
 @app.route("/")
 def home():
-    return "ok"
+    return (
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/<start><br/>"
+        f"/api/v1.0/<start>/<end><br/>"
+    )
 
 @app.route("/api/v1.0/precipitation")
 def precip():
-    return "prcp"
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
 
-@app.route("api/v1.0/stations")
+    # Query all Measurements
+    results = session.query(Measurements.date, Measurements.prcp).all()
+
+    session.close()
+
+    return jsonify(results)
+
+
+@app.route("/api/v1.0/stations")
 def stations():
     return "stations"
 
-@app.route("api/v1.0/tobs")
+@app.route("/api/v1.0/tobs")
 def tobs():
     return "tobs"
 
-@app.route("api/v1.0/<start>")
-def temp_stats(start):
+@app.route("/api/v1.0/<start>")
+def temp_stats_since(start):
     return "start"
 
-@app.route("api/v1.0/<start>/<end>")
-def temp_stats(start,end):
+@app.route("/api/v1.0/<start>/<end>")
+def temp_stats_range(start,end):
     return "start/end"
+
+if __name__ == '__main__':
+    app.run(debug=True)
