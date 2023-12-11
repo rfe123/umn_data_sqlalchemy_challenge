@@ -81,7 +81,21 @@ def precip():
 
 @app.route("/api/v1.0/stations")
 def stations():
-    return "stations"
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+    
+    # Design a query to find the most active stations (i.e. which stations have the most rows?)
+    # List the stations and their counts in descending order.
+    station_measurements = (session.query(Measurements.station, func.count(Measurements.id))
+                            .group_by(Measurements.station)
+                            .order_by(func.count(Measurements.id).desc()).all())
+    
+    station_dict = [{'station': x.station, 'measurements_count': x[1]} for x in station_measurements]
+
+    session.close()
+
+    return jsonify(station_dict)
+
 
 @app.route("/api/v1.0/tobs")
 def tobs():
