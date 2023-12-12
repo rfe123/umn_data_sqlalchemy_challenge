@@ -40,8 +40,8 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end><br/>"
+        f"/api/v1.0/&lt;start&gt;<br/>"
+        f"/api/v1.0/&lt;start&gt;/&lt;end&gt;<br/>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -128,7 +128,37 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 @app.route("/api/v1.0/<start>/<end>")
 def temp_stats_since(start,end=None):
-    return "start"
+    m,d,y = str.split(start, 'd')
+    start_date = dt.date(y, m, d)
+
+    session = Session(engine)
+
+    if end == None:
+        last_measurement = session.query(Measurements).order_by(Measurements.date.desc()).first()
+        
+        last_date_str = last_measurement.date
+        m,d,y = str.split(last_date_str,'-')
+        end_date = dt.date(int(y),int(m),int(m))
+    else:
+        m,d,y = str.split(start, 'd')
+        end_date = dt.date(y, m, d)
+    
+    
+    station_temp = (session.query(
+                func.min(Measurements.tobs),
+                func.max(Measurements.tobs), 
+                func.sum(Measurements.tobs) / func.count(Measurements.tobs),
+                func.count(Measurements.tobs)
+                )
+                .filter(Measurements.start_date >= start_date)
+                .filter(Measurements.end_date <= start_date).all())
+
+    session.close()
+    
+    station_temp_dict = [{'start_date': start_date, 'end_date': end_date, 'minimum': x[1], 'maximum': x[2], 'average': x[2], 'count': x[3]} for x in station_temp]
+    
+    return jsonify(station_temp_dict)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
