@@ -73,7 +73,7 @@ def precip():
     
     session.close()
 
-    prcp_dict = [{'date': x.date, 'prcp': x.prcp} for x in precip_by_date]
+    prcp_dict = [{x.date: x.prcp} for x in precip_by_date]
 
     return jsonify(prcp_dict)
 
